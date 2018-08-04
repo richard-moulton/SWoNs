@@ -1,14 +1,7 @@
-function network = createNetwork (N, K, q,displayFlag)
+function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
-    
-    %% TO CHANGE BEFORE TESTING:
-    % randomize random seed
-
-    % set up random seed for debugging purposes
-    randomseed = 5;
-    rng(randomseed);
     
     % initialize edges
     A = zeros(N,N);
@@ -38,7 +31,7 @@ function network = createNetwork (N, K, q,displayFlag)
     numEdges = 2*N*K;
     
     % number of edges to rewire
-    numRewiredEdges = q*numEdges;
+    numRewiredEdges = floor(q*numEdges);
     removedEdges = NaN(numRewiredEdges,2);
     addedEdges = NaN(numRewiredEdges,2);
     
@@ -144,11 +137,14 @@ function network = createNetwork (N, K, q,displayFlag)
     % random network
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
-    randomNetwork = generateRandomNetwork(N,numedges(newNetwork),randomseed,'uniform');
-    subplot(1,3,3);
-    plot(randomNetwork);
-    title('Random');
+    randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
     [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
+    
+    if displayFlag
+        subplot(1,3,3);
+        plot(randomNetwork);
+        title('Random');
+    end
     
     % ratio of characteristic path lengths
     lambda = charPathLength / charPathLength_random;
