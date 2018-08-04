@@ -1,7 +1,14 @@
-function network = createNetwork (N, K, type,displayFlag)
+function network = createNetwork (N, K, q,displayFlag)
     % Given a number of nodes, N, a degree of connectedness,
-    % K, and a desired type (random, small-world, scale
-    % free), generates and returns a graph object.
+    % K, and a rewiring proportion, q, generates and returns
+    % a graph object.
+    
+    %% TO CHANGE BEFORE TESTING:
+    % randomize random seed
+
+    % set up random seed for debugging purposes
+    randomseed = 5;
+    rng(randomseed);
     
     % initialize edges
     A = zeros(N,N);
@@ -22,7 +29,7 @@ function network = createNetwork (N, K, type,displayFlag)
         disp(A);
         % plot
         figure(1);
-        subplot(1,2,1);
+        subplot(1,3,1);
         plot(digraph(A));
         title('Ring Lattice');
     end
@@ -30,8 +37,6 @@ function network = createNetwork (N, K, type,displayFlag)
     % number of existing edges (assumes all edges are >= 0)
     numEdges = 2*N*K;
     
-    % rewiring probability (between 0 and 1)
-    q = 0.2;
     % number of edges to rewire
     numRewiredEdges = q*numEdges;
     removedEdges = NaN(numRewiredEdges,2);
@@ -86,9 +91,6 @@ function network = createNetwork (N, K, type,displayFlag)
         A(newi,newj) = 1;
     end
     
-    A(1,:) = 0;
-    A(:,5) = 0;
-    
     % sanity check that no node is unconnected
     for i=1:N
         % Check for any unconnected rows
@@ -119,12 +121,41 @@ function network = createNetwork (N, K, type,displayFlag)
         disp(removedEdges);
         disp(addedEdges);
         disp(A);
-        subplot(1,2,2);
+        subplot(1,3,2);
         plot(digraph(A));
         title('Quasi-SWoN');  
     end
+    %% assign weights to the edges
+    % weights come from a uniform distribution on the open interval (0,1)
+    % distribution can be changed, but weights need to remain in the closed
+    % interval [0 1] for the math to work, according to Xu 2010
+    % keep A as 0's and 1's to indicate presence of edge (we'll use this to
+    % create the time delay matrix later); feed in weighted edges directly
+    % into the digraph function to create our network
     
     % create network object
-    network = digraph(A);
-    keyboard;
+    newNetwork = digraph(rand(N,N) .* A);
+    
+    %% measuring small-world-ness
+    % small-world-ness S = 
+    % to measure small-world-ness, we will use measures detailed in Xu 2010
+    % these require that we calculate the shortest path length between each
+    % two nodes, and the clustering coefficient for our network, and a
+    % random network
+    [charPathLength, clusterCoeff] = networkStats(newNetwork);
+    % do the same for a randomly generated network
+    randomNetwork = generateRandomNetwork(N,numedges(newNetwork),randomseed,'uniform');
+    subplot(1,3,3);
+    plot(randomNetwork);
+    title('Random');
+    [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
+    
+    % ratio of characteristic path lengths
+    lambda = charPathLength / charPathLength_random;
+    % ratio of clustering coefficients
+    gamma = clusterCoeff / clusterCoeff_random;
+    % small-world-ness!
+    smallWorldMeasure = gamma / lambda; 
+    
+    disp([smallWorldMeasure gamma lambda]);    
 end
