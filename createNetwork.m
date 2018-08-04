@@ -157,5 +157,7 @@ function network = createNetwork (N, K, q,displayFlag)
     % small-world-ness!
     smallWorldMeasure = gamma / lambda; 
     
-    disp([smallWorldMeasure gamma lambda]);    
+    if displayFlag
+        disp([smallWorldMeasure gamma lambda]);    
+    end
 end
