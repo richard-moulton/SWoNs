@@ -1,4 +1,4 @@
-function network = createNetwork (N, K, q,displayFlag)
+function newNetwork = createNetwork (N, K, q,displayFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.

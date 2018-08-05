@@ -1,0 +1,64 @@
+%% Run Kuramoto oscillator through network
+clear; clc; clf; close all
+% This script generates a network and runs a kuramoto oscillator
+% conditioned on local connections
+% Numerical integration through fourth-order Runge-Kutta Method
+%% Generate network
+
+N = 50;
+K = 2;
+q = 0.1;
+h = 0.1;
+Lam = .2;
+displayFlag = false;
+testNet = createNetwork (N, K, q,displayFlag);
+Edges = testNet.Edges;
+iter = 500;
+numNodes = numel(unique(Edges.EndNodes(:,1)));
+omega = randn(1,numNodes) + 3;  %initialize nodes with random intrinsic frequency
+theta = [2*pi*rand(1,numNodes)',zeros(numNodes,iter-1)];
+figure;
+
+for k = 1:iter-1
+    
+    thetaConnect = theta(:,k)*ones(1,N)-(ones(N,1)*theta(:,k)'); %Generates phase matrix
+    
+    for i = 1:numNodes
+        
+        tmp = Edges.EndNodes(find(Edges.EndNodes(:,1)==i),2);
+        indEdgeConnect(i,:) = ismember(1:N,tmp); %generates connection matrix
+        
+    end
+    
+        thetaConnect(~indEdgeConnect) = 0; %no connection == 0
+        
+        f1 = kuramoto (thetaConnect,K,N,omega);
+%         f2=kuramoto(thetaConnect+0.5*h*f1(:,1),K,N,omega);
+%         f3=kuramoto(thetaConnect+0.5*h*f2(:,1),K,N,omega);           %4-th order Runge-Kutta method.
+%         f4=kuramoto(thetaConnect+h*f3(:,1),K,N,omega);        
+        theta(:,k+1) = theta(:,k)+(h/6)*(f1(:,1));%+2*f2(:,1)+2*f3(:,1)+f4(:,1));
+        
+        
+        x=cos(theta(:,k));
+        y=sin(theta(:,k));
+        s=linspace(0,2*pi,100);
+        cx=cos(s);
+        cy=sin(s);
+        p = plot(x,y,'o',cx,cy);
+        set(p,'MarkerSize',20);
+        axis([-1 1 -1 1])
+        axis square
+ 
+        drawnow
+    
+end
+
+%% Plotting
+figure;
+imagesc(theta./(theta(:,end)-theta(:,1)));
+
+function f=kuramoto(x,Lam,N,omega)
+ 
+f=omega+(Lam/N)*sum(sin(x))';
+ 
+end
