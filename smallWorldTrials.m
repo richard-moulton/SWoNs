@@ -6,9 +6,9 @@ randomseed = randi(100);
 rng(randomseed);
 
 % number of nodes in networks
-N = 20;
+N = 1000;
 % 2 * number of connected neighbors (K on either side)
-K = 3;
+K = 10;
 % rewiring probabilities
 q = 0:0.02:0.5;
 % number of networks to simulate in each condition ("samples")
@@ -21,7 +21,7 @@ charPathLengthRatio = NaN(length(q), numTrialNetworks); % lambda
 for qix = 1:length(q)
     disp(['q = ' num2str(q(qix))]);
     for t = 1:numTrialNetworks
-        [~, smallWorldMeasure(qix,t), clusterCoeffRatio(qix,t), charPathLengthRatio(qix,t)] = ...
+        [~, T, smallWorldMeasure(qix,t), clusterCoeffRatio(qix,t), charPathLengthRatio(qix,t)] = ...
             createNetwork(N, K, q(qix), 0);
     end
 end

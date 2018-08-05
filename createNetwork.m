@@ -1,9 +1,20 @@
-function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag)
+function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
     % displayFlag = 1: activates display of plots of networks and various
     % stats. displayFlag = 0: turns display off
+    % Function returns a digraph network object, a matrix of time delays
+    % (where the delay between nodes i and j is T(i,j) and delays between a
+    % node and itself are 0), the small-world measure of the network, the
+    % average path length ratio (with respect to a random network, lambda),
+    % and a clustering coefficient ratio (with respect to a random network,
+    % gamma)
+    
+    % initialize time delay range
+    timeDelayRange = [0 10];
+    % weight range
+    weightRange = [0 1];
     
     % initialize edges
     A = zeros(N,N);
@@ -133,8 +144,11 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     % into the digraph function to create our network
     
     % create network object
-    W = rand(N,N);
+    W = weightRange(1) + (weightRange(end)-weightRange(1)) .* rand(N,N);
     newNetwork = digraph(W .* A);
+    
+    % create time delay matrix
+    T = (timeDelayRange(1) + (timeDelayRange(end)-timeDelayRange(1)) .* rand(N,N)) .* A;
     
     if displayFlag
         disp('Weights for network: ');
