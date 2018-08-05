@@ -40,9 +40,11 @@ semPL = std(smallWorldMeasure,[],2) ./ sqrt(numTrialNetworks);
 % small-world-measure
 figure(1);
 clf;
-plot(q, meanSW, 'displayname', 'small-world measure');
+plot(q, meanSW);
 hold on;
 errorbar(q, meanSW, semSW, 'xr');
+xlabel('Rewiring probability');
+ylabel('Small-world measure');
 title(['N = ' num2str(N) ', K = ' num2str(K) ', nsamples = ' num2str(numTrialNetworks)]);
 hold off;
 
@@ -56,6 +58,7 @@ plot(q, meanPL, 'displayname', 'avg. path length');
 legend('show');
 errorbar(q, meanCC, semCC, 'xr');
 errorbar(q, meanPL, semPL, 'xr');
+xlabel('Rewiring probability');
 title(['N = ' num2str(N) ', K = ' num2str(K) ', nsamples = ' num2str(numTrialNetworks)]);
 hold off;
 

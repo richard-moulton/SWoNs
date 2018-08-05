@@ -2,6 +2,8 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
+    % displayFlag = 1: activates display of plots of networks and various
+    % stats. displayFlag = 0: turns display off
     
     % initialize edges
     A = zeros(N,N);
@@ -19,6 +21,7 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     end
     
     if displayFlag
+        disp('initial adjacency matrix (unweighted)');
         disp(A);
         % plot
         figure(1);
@@ -111,8 +114,11 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     
     % for display purposes
     if displayFlag
+        disp('Edges removed: ');
         disp(removedEdges);
+        disp('Edges added: ');
         disp(addedEdges);
+        disp('Adjacency matrix after rewiring (unweighted)');
         disp(A);
         subplot(1,3,2);
         plot(digraph(A));
@@ -127,8 +133,13 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     % into the digraph function to create our network
     
     % create network object
-    newNetwork = digraph(rand(N,N) .* A);
+    W = rand(N,N);
+    newNetwork = digraph(W .* A);
     
+    if displayFlag
+        disp('Weights for network: ');
+        disp(W.*A);
+    end
     %% measuring small-world-ness
     % small-world-ness S = 
     % to measure small-world-ness, we will use measures detailed in Xu 2010
@@ -154,6 +165,7 @@ function [newNetwork, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q
     smallWorldMeasure = gamma / lambda; 
     
     if displayFlag
-        disp([smallWorldMeasure gamma lambda]);    
+        disp(['Small-world measure: ' num2str(smallWorldMeasure)]);
+        disp(['Clustering coefficient ratio (gamma): ' num2str(gamma) ', characteristic path length ratio: ' num2str(lambda)]);  
     end
 end
