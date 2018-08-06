@@ -11,8 +11,7 @@ theta=zeros(N,iter);
 theta(:,1)=2*pi*rand(N,1);
 figure;
 subplot(2,1,1)
-Omega(1:N/2) = .1;
-Omega(N/2:N) = .9;
+Omega= randn(1,50);
 Omega = Omega';
 hist(Omega,50);
 title('Distribution of Frequencies');
