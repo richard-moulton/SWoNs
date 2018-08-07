@@ -10,7 +10,7 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     % average path length ratio (with respect to a random network, lambda),
     % and a clustering coefficient ratio (with respect to a random network,
     % gamma)
-    
+
     % initialize time delay range
     timeDelayRange = [0 10];
     % weight range
@@ -164,7 +164,9 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
+
     randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
+
     [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
     
     if displayFlag
