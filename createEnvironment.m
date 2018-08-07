@@ -1,3 +1,4 @@
+
 function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, nodeDropout, randomness, saveEnvironmentFlag)
   % Given the reward and randomness parameters, createEnvironment generates a struct 
   % representing the initial conditions for an environment.
@@ -67,5 +68,4 @@ function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, 
   
     save(filename, 'environment'); 
    end
-  
 end
