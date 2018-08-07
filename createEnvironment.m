@@ -1,9 +1,14 @@
-function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, nodeDropout, randomness)
+function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, nodeDropout, randomness, saveEnvironmentFlag)
   % Given the reward and randomness parameters, createEnvironment generates a struct 
   % representing the initial conditions for an environment.
   %
+  % numRewards: must be greater than 0
+  % maxReward: reward values will be distributed in the range (0, maxReward]
   % rewardDistFunc: uniformInteger, uniformCont, gaussianInteger, gaussianCont
+  % nodeDropout: the probability that a node will dropout of the network for any given time
+  %              step. Must be in the range [0,1)
   % randomness: none 0, low (0,0.15], medium (0.15-0.3], high (0.3-1]
+  % saveEnvironmentFlag: set to 1 if you want to save the environment struct as a MATLAB object
    
   %% Populate the rewards vector according to numRewards, maxReward and the rewardDistFunc 
   switch rewardDistFunc
@@ -53,5 +58,14 @@ function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, 
   %% Create the struct to be returned.
   environment = struct('rewards', rewards, 'stochasticity', environmentStochasticity, 
   'nodeDropRate', nodeDropout, 'urgency', globalUrgency);
+  
+  if saveEnvironmentFlag
+    c = clock;
+  
+    filename = strcat('environment_',num2str(c(3)), num2str(c(2)), num2str(c(1)), num2str(c(4)), 
+    num2str(c(5)), c(6),'.mat')
+  
+    save filename environment 
+   end
   
 end
