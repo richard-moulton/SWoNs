@@ -1,4 +1,4 @@
-function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag)
+function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
@@ -154,12 +154,14 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
         disp('Weights for network: ');
         disp(W.*A);
     end
+    
     %% measuring small-world-ness
     % small-world-ness S = 
     % to measure small-world-ness, we will use measures detailed in Xu 2010
     % these require that we calculate the shortest path length between each
     % two nodes, and the clustering coefficient for our network, and a
     % random network
+    
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
     randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
@@ -181,5 +183,16 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     if displayFlag
         disp(['Small-world measure: ' num2str(smallWorldMeasure)]);
         disp(['Clustering coefficient ratio (gamma): ' num2str(gamma) ', characteristic path length ratio: ' num2str(lambda)]);  
+    end
+    
+    %% save network object (maybe)
+    if saveNetworkFlag
+        networkObject = struct('networkObject', newNetwork, 'timeDelayMatrix', T, ...
+            'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
+            'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
+            'timeDelayRange', timeDelayRange);
+        runID = datetime;
+        runID = datestr(runID,'ddmmyy_HHMMSS');
+        save(['networkObj_' runID], 'networkObject');
     end
 end

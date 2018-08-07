@@ -56,16 +56,17 @@ function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, 
   %% Or initialize the global urgency equation's coefficients.
   
   %% Create the struct to be returned.
-  environment = struct('rewards', rewards, 'stochasticity', environmentStochasticity, 
+  environment = struct('rewards', rewards, 'stochasticity', environmentStochasticity, ...
   'nodeDropRate', nodeDropout, 'urgency', globalUrgency);
   
   if saveEnvironmentFlag
     c = clock;
   
-    filename = strcat('environment_',num2str(c(3)), num2str(c(2)), num2str(c(1)), num2str(c(4)), 
-    num2str(c(5)), c(6),'.mat')
+
+    filename = strcat('environment_',num2str(c(3)), num2str(c(2)), num2str(c(1)), num2str(c(4)), ...
+    num2str(c(5)), c(6),'.mat');
   
-    save filename environment 
+    save(filename, 'environment'); 
    end
-  
 end
+

@@ -6,9 +6,9 @@ randomseed = randi(100);
 rng(randomseed);
 
 % number of nodes in networks
-N = 1000;
+N = 250;
 % 2 * number of connected neighbors (K on either side)
-K = 10;
+K = 25;
 % rewiring probabilities
 q = 0:0.02:0.5;
 % number of networks to simulate in each condition ("samples")
@@ -19,11 +19,16 @@ clusterCoeffRatio = NaN(length(q), numTrialNetworks);   % gamma
 charPathLengthRatio = NaN(length(q), numTrialNetworks); % lambda
 
 for qix = 1:length(q)
-    disp(['q = ' num2str(q(qix))]);
+    tic
+    disp(['*** q = ' num2str(q(qix))]);
     for t = 1:numTrialNetworks
+        if mod(t,10)==0
+            disp(t);
+        end
         [~, T, smallWorldMeasure(qix,t), clusterCoeffRatio(qix,t), charPathLengthRatio(qix,t)] = ...
-            createNetwork(N, K, q(qix), 0);
+            createNetwork(N, K, q(qix), 0, 0);
     end
+    toc
 end
 
 % compute mean of all measures as a function of q
@@ -47,6 +52,7 @@ xlabel('Rewiring probability');
 ylabel('Small-world measure');
 title(['N = ' num2str(N) ', K = ' num2str(K) ', nsamples = ' num2str(numTrialNetworks)]);
 hold off;
+saveas(gca, ['smallWorldMeasure_N' num2str(N) '_K' num2str(K) '_' num2str(numTrialNetworks)]);
 
 % cluster coefficient ratio (gamma) and characteristic path length ratio
 % (lambda)
@@ -61,5 +67,6 @@ errorbar(q, meanPL, semPL, 'xr');
 xlabel('Rewiring probability');
 title(['N = ' num2str(N) ', K = ' num2str(K) ', nsamples = ' num2str(numTrialNetworks)]);
 hold off;
+saveas(gca, ['gamma&lambda_N' num2str(N) '_K' num2str(K) '_' num2str(numTrialNetworks)]);
 
 
