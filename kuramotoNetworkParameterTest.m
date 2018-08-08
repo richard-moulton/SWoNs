@@ -14,12 +14,12 @@ netProgressLabel = 'Current network progress';
 
 % network parameters 
 N = [20];  %[2 5 10 25 50 100 250];  % number of nodes
-Kprop = [1];  % edge density parameter; 0 -> K=0 and 1 -> K=N/2
+Kprop = [0.4];  % edge density parameter; 0 -> K=0 and 1 -> K=N/2
 q = [0.1];  % rewiring parameter
 netParamCombs = num2cell(allcomb(N, Kprop, q));  % get combinations
 
 % oscillator parameters (maybe more of them in future)
-lam = linspace(0, 4, 50); %[0, logspace(-7, 2, 5)];
+lam = linspace(0, 2, 50); %[0, logspace(-7, 2, 5)];
 oscParamCombs = num2cell(allcomb(lam));  % get combinations
 
 % simulation parameters
