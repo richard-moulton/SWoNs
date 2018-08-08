@@ -8,22 +8,23 @@ multiWaitbar('CloseAll');
 
 % flags etc.
 displayFlag = false;  % false = suppress plots
+saveNetworkFlag = false;
 overallProgressFmt = 'Overall progress (current N=%d)';
 netProgressLabel = 'Current network progress';
 
 % network parameters 
-N = [2];  %[2 5 10 25 50 100 250];  % number of nodes
+N = [20];  %[2 5 10 25 50 100 250];  % number of nodes
 Kprop = [1];  % edge density parameter; 0 -> K=0 and 1 -> K=N/2
-q = [0];  % rewiring parameter
+q = [0.1];  % rewiring parameter
 netParamCombs = num2cell(allcomb(N, Kprop, q));  % get combinations
 
 % oscillator parameters (maybe more of them in future)
-lam = [2]; %[0, logspace(-7, 2, 5)];
+lam = linspace(0, 4, 50); %[0, logspace(-7, 2, 5)];
 oscParamCombs = num2cell(allcomb(lam));  % get combinations
 
 % simulation parameters
 h = 1e-1;  % numerical integration step
-steps = 1000;
+steps = 500;
 
 % pre-allocate arrays
 % theta changes in size depending on network...
@@ -43,7 +44,7 @@ for j = 1:size(netParamCombs, 1)
     [N, Kprop, q] = deal(netParamCombs{j, :});
 
     % initial/constant conditions
-    omega = [0.5, -0.1]; %rand(1, N);  %initialize nodes with random intrinsic frequency
+    omega = rand(1, N);  %initialize nodes with random intrinsic frequency
     theta0 = 2 * pi * rand(1, N);
 
     % create network
@@ -52,7 +53,7 @@ for j = 1:size(netParamCombs, 1)
     %if K == 0 && find(netParamCombs(1:j-1))
     %    continue
     %end
-    net = createNetwork(N, K, q, displayFlag);
+    net = createNetwork(N, K, q, displayFlag, saveNetworkFlag);
 
     % update overall waitbar
     tmpLabel = sprintf(overallProgressFmt, N);

@@ -23,13 +23,13 @@ figure;
 imagesc(log(r' ./ stds(:, 1:end-1)))
 
 %%
-theta_ = theta{1, end};
+theta_i = theta{1, end};
 
 figure;
-for i = 1:size(theta_, 2)
+for i = 1:size(theta_i, 2)
     
-        x=cos(theta_(:, i)');% - psi(i, :));
-        y=sin(theta_(:, i)');% - psi(i, :));
+        x=cos(theta_i(:, i)');% - psi(i, :));
+        y=sin(theta_i(:, i)');% - psi(i, :));
         
         s=linspace(0,2*pi,100);
         cx=cos(s);
@@ -43,7 +43,8 @@ for i = 1:size(theta_, 2)
 end
 %%
 figure;
-plot(1:1000,squeeze(abs(z(1,1,:))))
+r = abs(squeeze(z(1, :, :)));
+imagesc(r)
 
 %%
 theta_p = theta{1, end};

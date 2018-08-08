@@ -11,21 +11,23 @@ N = net.numnodes;
 E = weightedA(net);  % transposed because of `dot` in kuramoto
 
 % pre-allocate arrays and set initial conditions
-z = zeros(length(steps-1), 1);
+z = zeros(steps, 1);
 theta = zeros(N, steps);
 theta(:, 1) = theta0;
 
 % partial function for evaluating the numerical integral
 kuramotoPartial = @(thetaDiffs, varargin) kuramoto(thetaDiffs, omega, lam, N, varargin{:});
-
+E_ones = E;
+E_ones(E>0) = 1;
 for iter = 1:steps-1
     % pairwise inter-node phase differences
-    thetaPairwiseDiffs = theta(:, iter)' - theta(:, iter); 
-    
+    thetaPairwiseDiffs = theta(:, iter) - theta(:, iter)'; 
+    %thetaPairwiseDiffs(~E) = 0;
+
     % numerical integration step
-    plusNoise = thetaPairwiseDiffs;% + rand(N)*0.1;
-    dtheta = rk4Step(kuramotoPartial, plusNoise, h, ones(N));
-    theta(:, iter+1) = theta(:, iter) + dtheta';
+    plusNoise = thetaPairwiseDiffs; % + rand(N)*0.1;
+    dtheta = rk4Step(kuramotoPartial, plusNoise, h, E_ones);
+    theta(:, iter+1) = theta(:, iter) + dtheta;
     
     % keep theta in [0, 2*pi)
     theta(:, iter+1) = wrapTo2Pi(theta(:, iter+1));
