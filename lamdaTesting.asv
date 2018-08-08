@@ -3,7 +3,7 @@ clear;
 N = 20;
 K = 4;
 q = 0.1;
-Lam = linspace(0,4,100);
+Lam = linspace(0,.4,100);
 displayFlag = false;
 testNet = createNetwork (N, K, q,displayFlag);
 Edges = testNet.Edges;
@@ -37,3 +37,26 @@ end
 ylim([0.75 1.1]);
 subplot(1,2,2)
 imagesc(r');
+stds = squeeze(std(theta2,[], 1))';
+figure;
+imagesc(stds);
+
+% figure;
+% imagesc(log(r' ./ stds(:, 1:end-1)))
+% figure;
+% for i = 1:500
+%     
+%         x=cos(theta2(:,i,4)' - psi(i, :));
+%         y=sin(theta2(:,i,4)' - psi(i, :));
+%         
+%         s=linspace(0,2*pi,100);
+%         cx=cos(s);
+%         cy=sin(s);
+%         p = plot(x,y,'.',cx,cy);
+%         set(p,'MarkerSize',20);
+%         axis([-1 1 -1 1])
+%         axis square
+%         drawnow
+% end
+
+
