@@ -11,6 +11,10 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % and a clustering coefficient ratio (with respect to a random network,
     % gamma)
     
+    % make sure N and K are integers
+    N = floor(N);
+    K = floor(K);
+    
     % initialize time delay range
     timeDelayRange = [0 10];
     % weight range
