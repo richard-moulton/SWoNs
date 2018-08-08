@@ -1,4 +1,4 @@
-function randomNetwork = generateRandomNetwork(numNodes,numEdges,randomseed,weightDistribution)
+function randomNetwork = generateRandomNetwork(numNodes,numEdges,weightDistribution)
 %% generate random adjacency matrix
 A = zeros(numNodes,numNodes);
 %% create edges
@@ -50,8 +50,6 @@ while changesMade > 0
     end
 end
 
-%% give the edges random weights, according to the input distribution
-rng(randomseed);
 switch weightDistribution
     case 'uniform'
         A_w = A .* rand(numNodes,numNodes);

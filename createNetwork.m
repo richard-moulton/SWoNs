@@ -1,16 +1,20 @@
-function newNetwork = createNetwork (N, K, q,displayFlag)
+function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
-    % q = (0, .15)
-    % K*2 = number of connections per node
-    
-    %% TO CHANGE BEFORE TESTING:
-    % randomize random seed
+    % displayFlag = 1: activates display of plots of networks and various
+    % stats. displayFlag = 0: turns display off
+    % Function returns a digraph network object, a matrix of time delays
+    % (where the delay between nodes i and j is T(i,j) and delays between a
+    % node and itself are 0), the small-world measure of the network, the
+    % average path length ratio (with respect to a random network, lambda),
+    % and a clustering coefficient ratio (with respect to a random network,
+    % gamma)
 
-    % set up random seed for debugging purposes
-    randomseed = 5;
-    rng(randomseed);
+    % initialize time delay range
+    timeDelayRange = [0 10];
+    % weight range
+    weightRange = [0 1];
     
     % initialize edges
     A = zeros(N,N);
@@ -28,6 +32,7 @@ function newNetwork = createNetwork (N, K, q,displayFlag)
     end
     
     if displayFlag
+        disp('initial adjacency matrix (unweighted)');
         disp(A);
         % plot
         figure(1);
@@ -120,8 +125,11 @@ function newNetwork = createNetwork (N, K, q,displayFlag)
     
     % for display purposes
     if displayFlag
+        disp('Edges removed: ');
         disp(removedEdges);
+        disp('Edges added: ');
         disp(addedEdges);
+        disp('Adjacency matrix after rewiring (unweighted)');
         disp(A);
         subplot(1,3,2);
         plot(digraph(A));
@@ -136,7 +144,16 @@ function newNetwork = createNetwork (N, K, q,displayFlag)
     % into the digraph function to create our network
     
     % create network object
-    newNetwork = digraph(rand(N,N) .* A);
+    W = weightRange(1) + (weightRange(end)-weightRange(1)) .* rand(N,N);
+    newNetwork = digraph(W .* A);
+    
+    % create time delay matrix
+    T = (timeDelayRange(1) + (timeDelayRange(end)-timeDelayRange(1)) .* rand(N,N)) .* A;
+    
+    if displayFlag
+        disp('Weights for network: ');
+        disp(W.*A);
+    end
     
     %% measuring small-world-ness
     % small-world-ness S = 
@@ -144,15 +161,19 @@ function newNetwork = createNetwork (N, K, q,displayFlag)
     % these require that we calculate the shortest path length between each
     % two nodes, and the clustering coefficient for our network, and a
     % random network
+    
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
-    randomNetwork = generateRandomNetwork(N,numedges(newNetwork),randomseed,'uniform');
+
+    randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
+
+    [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
+    
     if displayFlag
         subplot(1,3,3);
         plot(randomNetwork);
         title('Random');
     end
-    [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
     
     % ratio of characteristic path lengths
     lambda = charPathLength / charPathLength_random;
@@ -162,6 +183,18 @@ function newNetwork = createNetwork (N, K, q,displayFlag)
     smallWorldMeasure = gamma / lambda; 
     
     if displayFlag
-        disp([smallWorldMeasure gamma lambda]);    
+        disp(['Small-world measure: ' num2str(smallWorldMeasure)]);
+        disp(['Clustering coefficient ratio (gamma): ' num2str(gamma) ', characteristic path length ratio: ' num2str(lambda)]);  
+    end
+    
+    %% save network object (maybe)
+    if saveNetworkFlag
+        networkObject = struct('networkObject', newNetwork, 'timeDelayMatrix', T, ...
+            'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
+            'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
+            'timeDelayRange', timeDelayRange);
+        runID = datetime;
+        runID = datestr(runID,'ddmmyy_HHMMSS');
+        save(['networkObj_' runID], 'networkObject');
     end
 end
