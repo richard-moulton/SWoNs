@@ -1,6 +1,5 @@
 %% Run Kuramoto oscillator through network
-function [theta,r, psi] = kuramNetwork (testNet,Edges,N,Lam,omega,theta,numNodes)
-
+function [theta,r, psi] = kuramNetwork (Edges,N,Lam,omega,theta,numNodes)
 % This script  runs a kuramoto oscillator through a pre-generated network
 % conditioned on local connections
 % Numerical integration through fourth-order Runge-Kutta Method
@@ -17,8 +16,14 @@ figure;
 for k = 1:iter-1
     
     thetaConnect = theta(:,k)*ones(1,N)-(ones(N,1)*theta(:,k)'); %Generates phase matrix\
-    indEdgeConnect = adjacency(testNet);
-    thetaConnect(~indEdgeConnect) = 0; %no connection == 0
+    indEdgeConnect = 
+    %for i = 1:numNodes
+    %    
+    %    tmp = Edges.EndNodes(find(Edges.EndNodes(:,1)==i),2);
+    %    indEdgeConnect(i,:) = ismember(1:N,tmp); %generates connection matrix
+    %    
+    %end
+        thetaConnect(~indEdgeConnect) = 0; %no connection == 0
         
         f1 = kuramoto (thetaConnect,Lam,N,omega);
         f2=kuramoto(thetaConnect+0.5*h*f1(:,1),Lam,N,omega);
@@ -36,6 +41,18 @@ for k = 1:iter-1
         r(k+1) = abs (z);
         psi(k+1) = angle(z);
         
+        x=cos(theta(:,k));
+        y=sin(theta(:,k));
+        s=linspace(0,2*pi,100);
+cx=cos(s);
+cy=sin(s);
+subplot(2,1,2)
+plot(x,y,'o',cx,cy)
+axis([-1 1 -1 1])
+axis square
+ 
+drawnow
+
 end
 
 function f=kuramoto(x,Lam,N,omega)

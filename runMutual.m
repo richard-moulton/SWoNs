@@ -6,7 +6,6 @@ time = 0:dt:1000;
 [a1,a2] = deal (zeros(1,length(time)));
 dR = randn(length(time),1)./1000;
 
-figure;
 hold on
 xlim([0 1000]);
 ylim([-.05 .05]);
