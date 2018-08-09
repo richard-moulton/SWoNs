@@ -1,4 +1,4 @@
-function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
+function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % Given a number of nodes, N, a degree of connectedness,
     % K, and a rewiring proportion, q, generates and returns
     % a graph object.
@@ -11,6 +11,10 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     % and a clustering coefficient ratio (with respect to a random network,
     % gamma)
 
+    % make sure N and K are integers
+    N = floor(N);
+    K = floor(K);
+    
     % initialize time delay range
     timeDelayRange = [0 10];
     % weight range
@@ -145,7 +149,9 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     
     % create network object
     W = weightRange(1) + (weightRange(end)-weightRange(1)) .* rand(N,N);
-    newNetwork = digraph(W .* A);
+    % weighted adjacency matrix
+    A_w = W .* A;
+    newNetwork = digraph(A_w);
     
     % create time delay matrix
     T = (timeDelayRange(1) + (timeDelayRange(end)-timeDelayRange(1)) .* rand(N,N)) .* A;
@@ -189,7 +195,7 @@ function [newNetwork, T, smallWorldMeasure, lambda, gamma] = createNetwork (N, K
     
     %% save network object (maybe)
     if saveNetworkFlag
-        networkObject = struct('networkObject', newNetwork, 'timeDelayMatrix', T, ...
+        networkObject = struct('networkObject', newNetwork, 'weightedEdgeMatrix', A_w, 'timeDelayMatrix', T, ...
             'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
             'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
             'timeDelayRange', timeDelayRange);

@@ -62,11 +62,9 @@ function environment = createEnvironment(numRewards, maxReward, rewardDistFunc, 
   if saveEnvironmentFlag
     c = clock;
   
-
     filename = strcat('environment_',num2str(c(3)), num2str(c(2)), num2str(c(1)), num2str(c(4)), ...
     num2str(c(5)), c(6),'.mat');
   
     save(filename, 'environment'); 
    end
 end
-
