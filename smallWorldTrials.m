@@ -25,8 +25,10 @@ for qix = 1:length(q)
         if mod(t,10)==0
             disp(t);
         end
-        [~, T, smallWorldMeasure(qix,t), clusterCoeffRatio(qix,t), charPathLengthRatio(qix,t)] = ...
-            createNetwork(N, K, q(qix), 0, 0);
+        networkObject = createNetwork(N, K, q(qix), 0, 0);
+        smallWorldMeasure(qix,t) = networkObject.smallWorldMeasure;
+        clusterCoeffRatio(qix,t) = networkObject.clusteringCoefficientRatio;
+        charPathLengthRatio(qix,t) = networkObject.characteristicPathLengthRatio;
     end
     toc
 end
