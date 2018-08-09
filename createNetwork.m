@@ -191,14 +191,14 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
         disp(['Clustering coefficient ratio (gamma): ' num2str(gamma) ', characteristic path length ratio: ' num2str(lambda)]);  
     end
     
-    %% save network object (maybe)
-    if saveNetworkFlag
-        networkObject = struct('networkObject', newNetwork, 'weightedEdgeMatrix', A_w, 'timeDelayMatrix', T, ...
-            'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
-            'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
-            'timeDelayRange', timeDelayRange);
-        runID = datetime;
-        runID = datestr(runID,'ddmmyy_HHMMSS');
+    %% create network object
+    runID = datetime;
+    runID = datestr(runID,'ddmmyy_HHMMSS');
+    networkObject = struct('runID', runID, 'networkObject', newNetwork, 'weightedEdgeMatrix', A_w, 'timeDelayMatrix', T, ...
+        'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
+        'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
+        'timeDelayRange', timeDelayRange);
+    if saveNetworkFlag  % save network object
         save(['networkObj_' runID], 'networkObject');
     end
 end

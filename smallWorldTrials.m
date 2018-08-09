@@ -10,7 +10,7 @@ N = 250;
 % 2 * number of connected neighbors (K on either side)
 K = 25;
 % rewiring probabilities
-q = 0:0.02:0.5;
+q = 0:0.05:0.2;
 % number of networks to simulate in each condition ("samples")
 numTrialNetworks = 100;
 % keep track of statistics for these networks
