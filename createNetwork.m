@@ -10,7 +10,7 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % average path length ratio (with respect to a random network, lambda),
     % and a clustering coefficient ratio (with respect to a random network,
     % gamma)
-    
+
     % make sure N and K are integers
     N = floor(N);
     K = floor(K);
@@ -170,7 +170,9 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
+
     randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
+
     [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
     
     if displayFlag
