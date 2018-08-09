@@ -13,11 +13,11 @@ overallProgressFmt = 'Overall progress (current N=%d)';
 netProgressLabel = 'Current network progress';
 
 % network parameters 
-netGenReps = 10; % number of times to generate network with same parameters (e.g. for non-zero q/non-deterministic network structure)
+netGenReps = 1; % number of times to generate network with same parameters (e.g. for non-zero q/non-deterministic network structure)
 netReps = 1;  % number of times to run same network (e.g. to average over noise)
-N_vec = [20];  %[2 5 10 25 50 100 250];  % number of nodes
+N_vec = [5];  %[2 5 10 25 50 100 250];  % number of nodes
 q = [0]; % 0.05 0.1 0.15]; %linspace(0,1,50)  % rewiring parameter
-K_fcn = @(N) linspace(0, 1, floor(N/2) + 1) * floor(N/2);
+K_fcn = @(N) 2% linspace(0, 1, floor(N/2) + 1) * floor(N/2);
 netParamCombs = [];
 for i = 1:length(N_vec)
    K_vec = K_fcn(N_vec(i));
@@ -27,7 +27,7 @@ netParamCombs = num2cell(netParamCombs);
 
 % oscillator parameters (maybe more of them in future)
 %fac = gamma(2:0.1:14 + 1);
-lam = linspace(0, 1, 100); %[0 1./fac(end:-1:1)]; %logspace(-8, 1, 100)]; %  
+lam = linspace(0, 0.5, 100); %[0 1./fac(end:-1:1)]; %logspace(-8, 1, 100)]; %  
 oscParamCombs = num2cell(allcomb(lam));  % get combinations
 
 % simulation parameters

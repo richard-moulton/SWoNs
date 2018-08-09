@@ -1,10 +1,12 @@
 %%
-maxstep = max(decision(:, 2))
+rep = 801;
+maxstep = max(decision(rep,:, 2));
+maxstep = maxstep;
 if maxstep == 0
-    maxstep = maxsteps
+    maxstep = maxsteps;
 end
 figure;
 subplot(1,2,1)
-plot(1:maxstep, r(:, 1:maxstep))
+plot(1:maxstep, r{rep}(:, 1:maxstep))
 subplot(1,2,2)
-plot(1:maxstep, lams(:, 1:maxstep))
+plot(1:maxstep, lams{rep}(:, 1:maxstep))
