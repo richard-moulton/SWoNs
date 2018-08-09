@@ -1,8 +1,14 @@
-%% Test all combinations of network and Kuramoto oscillator parameters 
-% N, K, q, and lam may be set to single values or ranges, and the script
-% will test all resulting combinations. Note that this will result in an
-% infeasible computation time if too many ranges are given.
+function [thetas, zs, netParamCombs, oscParamCombs] = testKuramotoNetParams(N_vec, q_vec, K_fcn, lam_vec, netReps, netGenReps, steps, h)
+%testKuramotoNetParams Test combinations of network and Kuramoto oscillator parameters. 
+% N_vec, q_vec, and lam_vec may be given as single values or ranges. K_fcn 
+% is a function that generates one or more K values to test, and may take
+% N as its sole argument.
+%
+% Note that this will result in an unfeasible computation time if too many 
+% large parameter ranges are given.
+%
 % TODO: variable omega and theta0
+
 clear;
 multiWaitbar('CloseAll');
 
@@ -13,34 +19,23 @@ overallProgressFmt = 'Overall progress (current N=%d)';
 netProgressLabel = 'Current network progress';
 
 % network parameters 
-netGenReps = 10; % number of times to generate network with same parameters (e.g. for non-zero q/non-deterministic network structure)
-netReps = 1;  % number of times to run same network (e.g. to average over noise)
-N_vec = [20];  %[2 5 10 25 50 100 250];  % number of nodes
-q = [0]; % 0.05 0.1 0.15]; %linspace(0,1,50)  % rewiring parameter
-K_fcn = @(N) linspace(0, 1, floor(N/2) + 1) * floor(N/2);
 netParamCombs = [];
 for i = 1:length(N_vec)
    K_vec = K_fcn(N_vec(i));
-   netParamCombs = [netParamCombs, allcomb(N_vec(i), K_vec, q)]; 
+   netParamCombs = [netParamCombs, allcomb(N_vec(i), K_vec, q_vec)]; 
 end
 netParamCombs = num2cell(netParamCombs);
 
 % oscillator parameters (maybe more of them in future)
-%fac = gamma(2:0.1:14 + 1);
-lam = linspace(0, 1, 100); %[0 1./fac(end:-1:1)]; %logspace(-8, 1, 100)]; %  
-oscParamCombs = num2cell(allcomb(lam));  % get combinations
-
-% simulation parameters
-h = 1e-2;  % numerical integration step
-steps = 300;
+oscParamCombs = num2cell(allcomb(lam_vec));  % get combinations
 
 % pre-allocate arrays
 % theta changes in size depending on network...
 nets = cell(size(netParamCombs, 1));
-theta = cell(size(netParamCombs, 1), netGenReps, netReps, size(oscParamCombs, 1));
+thetas = cell(size(netParamCombs, 1), netGenReps, netReps, size(oscParamCombs, 1));
 % z is a scalar per step, no matter the network parameters
 % r and psi can be recovered later, no need to store everything
-z = zeros(size(netParamCombs, 1), netGenReps, netReps, size(oscParamCombs, 1), steps);
+zs = zeros(size(netParamCombs, 1), netGenReps, netReps, size(oscParamCombs, 1), steps);
 
 % hide any internally generated plots and setup progress bars
 set(0, 'defaultfigurevisible', 'off');
@@ -73,7 +68,7 @@ for j = 1:size(netParamCombs, 1)
             for i = 1:size(oscParamCombs, 1)
                 [lam] = deal(oscParamCombs{i,:});
                 multiWaitbar(netProgressLabel, i/length(oscParamCombs));
-                [theta{j, k, l, i}, z(j, k, l, i, :)] = kuramNetwork(nets{j, k}, lam, omega, theta0, steps, h);
+                [thetas{j, k, l, i}, zs(j, k, l, i, :)] = kuramNetwork(nets{j, k}, lam, omega, theta0, steps, h);
             end
         end
     end
@@ -83,6 +78,7 @@ end
 multiWaitbar('CloseAll');
 set(0,'defaultfigurevisible','on');
 
+end
 
 
 
