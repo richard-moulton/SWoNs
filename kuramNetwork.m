@@ -8,58 +8,54 @@ function [theta, z] = kuramNetwork(net, lam, omega, theta0, steps, h)
 
 % network parameters
 N = net.numnodes;
-A = full(adjacency(net));
-w = net.Edges.Weight;
+E = weightedA(net);  % transposed because of `dot` in kuramoto
 
 % pre-allocate arrays and set initial conditions
-r = zeros(length(steps-1), 1);
+z = zeros(length(steps-1), 1);
 theta = zeros(N, steps);
 theta(:, 1) = theta0;
 
 % partial function for evaluating the numerical integral
-kuramotoPartial = @(thetaDiffs) kuramoto(thetaDiffs, lam, N, omega);
+kuramotoPartial = @(thetaDiffs, varargin) kuramoto(thetaDiffs, omega, lam, N, varargin{:});
 
 for iter = 1:steps-1
     % pairwise inter-node phase differences
-    thetaDiffs = theta(:, iter)*ones(1, N) - (ones(N, 1)*theta(:, iter)'); 
-    thetaDiffs(~A) = 0;  % exclude non-edges
+    thetaPairwiseDiffs = theta(:, iter) - theta(:, iter)'; 
     
     % numerical integration step
-    theta(:, iter+1) = theta(:, iter) + rk4StepNonZero(kuramotoPartial, thetaDiffs, h, A)';
+    plusNoise = thetaPairwiseDiffs;% + rand(N)*0.1;
+    dtheta = rk4Step(kuramotoPartial, plusNoise, h, ones(N));
+    theta(:, iter+1) = theta(:, iter) + dtheta;
     
-    % boundary conditions to keep theta in [0, 2*pi)
-    indOver = theta(:, iter+1) >= 2*pi;
-    indUnder = theta(:, iter+1) < 0;
-    theta(indOver, iter+1) = theta(indOver, iter+1) - 2*pi;
-    theta(indUnder, iter+1) = theta(indUnder, iter+1) + 2*pi;
-
+    % keep theta in [0, 2*pi)
+    theta(:, iter+1) = wrapTo2Pi(theta(:, iter+1));
+    
     % network mean phase vector
-    z = sum(exp(1i*sin(theta(:, iter+1)))) / N;  
+    z(iter+1) = sum(exp(1i*theta(:, iter+1))) / N;  
 end
 
-function dTh = kuramoto(x, lam, N, omega)
+function A_w = weightedA(net)
+    % weighted adjacency table
+    weightedEdges = table2array(net.Edges);
+    % convert to matrix
+    A_w = zeros(net.numnodes);
+    for e = 1:size(weightedEdges, 1)
+        A_w(weightedEdges(e, 1), weightedEdges(e, 2)) = weightedEdges(e, 3);
+    end
+end
+
+function dTh = kuramoto(x, omega, lam, N, varargin)
     % Kuramoto oscillator differential equation 
-    dTh = omega + (lam / N) * sum(sin(x));
+    E = varargin{1};
+    dTh = omega + (lam / N) * dot(E, sin(x))';
 end
 
-function res = rk4StepNonZero(dxdt, x, h, posInds)
+function res = rk4Step(dxdt, x, h, varargin)
     % 4-th order Runge-Kutta method on non-zero values in x
-    f1 = dxdt(x);
-    x2 = broadcastAddToNonZero(x, 0.5*h*f1, posInds);
-    f2 = dxdt(x2);
-    x3 = broadcastAddToNonZero(x, 0.5*h*f2, posInds);
-    f3 = dxdt(x3);
-    x4 = broadcastAddToNonZero(x, h*f3, posInds);
-    f4 = dxdt(x4);        
-    res = (h/6)*f1 + 2*f2 + 2*f3 + f4;
-end
-
-function s = broadcastAddToNonZero(x, y, posInds)
-    % broadcast addition of vector y to matrix x
-    % but only to non-zero values in x, given by logical posInds
-    yBroadcast = y + zeros(length(y));
-    s = x;
-    inds = logical(posInds);
-    s(inds) = s(inds) + yBroadcast(inds);
+    f1 = dxdt(x, varargin{:});
+    f2 = dxdt(x + 0.5*h*f1(:, 1), varargin{:});
+    f3 = dxdt(x + 0.5*h*f2(:, 1), varargin{:});
+    f4 = dxdt(x + h*f3(:, 1), varargin{:});        
+    res = (h/6)*f1(:, 1) + 2*f2(:, 1) + 2*f3(:, 1) + f4(:, 1);
 end
 end
