@@ -1,20 +1,7 @@
-    r(iter+1) = abs (z);
-    psi(iter+1) = angle(z);
+r = abs(z);
+psi = angle(z);
 
-figure;
-for j = 1:length(h)
-   subplot(ceil(length(h)/2),2,j)
-   imagesc(log(1 + r(:,1:80,length(h))' - r(:,1:80,j)'))
-   title(sprintf("h = %f", h(j)));
-end
-
-figure;
-imagesc(r')
-yticklabels(linspace(0,4,10))
-xlabel('time')
-ylabel('Coupling Constant')
-
-
+%%
 stds = squeeze(std(theta2,[], 1))';
 figure;
 imagesc(stds);
@@ -22,8 +9,8 @@ imagesc(stds);
 figure;
 imagesc(log(r' ./ stds(:, 1:end-1)))
 
-%%
-theta_i = theta{1, end};
+%% synch animation
+theta_i = theta{end, 20};
 
 figure;
 for i = 1:size(theta_i, 2)
@@ -41,12 +28,45 @@ for i = 1:size(theta_i, 2)
         drawnow
         pause(0.1);
 end
-%%
+%% r vs. step, lambda
 figure;
-r = abs(squeeze(z(1, :, :)));
+lam = cell2mat(oscParamCombs);
+r = abs(squeeze(z(1, 1, 1, :, :)));
+imagesc(1:steps, lam, r)
+%set(gca,'YScale','log')
+xlabel('Time')
+ylabel('Coupling Constant')
+
+%% r vs. step, K (lambda also variable between trials)
+figure;
+nLam = 15;
+r = abs(squeeze(z(:,nLam,:)));
 imagesc(r)
 
-%%
+%% sync step (r threshold) vs. K, lam
+thres=1;
+r = abs(z);
+lam = cell2mat(oscParamCombs);
+netParams = cell2mat(netParamCombs);
+K = netParams(:, 2);
+for j = 1:size(r, 1)  % each K
+for i = 1:size(r, 2)  % each lambda
+    passesThres = find(r(j, i, :) > thres, 1);
+    if isempty(passesThres)
+        sync_step(j, i) = steps;
+    else
+        sync_step(j, i) = passesThres;
+    end
+end
+end
+figure;
+imagesc(K*N/2, lam, sync_step');
+xlabel('K')
+ylabel('Coupling Constant')
+title(sprintf('Step when r exceeds %0.2f', thres));
+colorbar;
+
+%% trying to animate synch along with synch vector
 theta_p = theta{1, end};
 z_p = squeeze(z(1, end, :));
 r=abs(z_p);
