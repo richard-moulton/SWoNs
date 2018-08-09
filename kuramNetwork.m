@@ -24,7 +24,7 @@ for iter = 1:steps-1
     
     % numerical integration step
     plusNoise = thetaPairwiseDiffs;% + rand(N)*0.1;
-    dtheta = rk4Step(kuramotoPartial, plusNoise, h, ones(N));
+    dtheta = rk4Step(kuramotoPartial, plusNoise, h, E);
     theta(:, iter+1) = theta(:, iter) + dtheta;
     
     % keep theta in [0, 2*pi)
@@ -46,8 +46,8 @@ end
 
 function dTh = kuramoto(x, omega, lam, N, varargin)
     % Kuramoto oscillator differential equation 
-    E = varargin{1};
-    dTh = omega + (lam / N) * dot(E, sin(x))';
+    E_k = varargin{1};
+    dTh = omega + (lam / N) * dot(E_k, sin(x))';
 end
 
 function res = rk4Step(dxdt, x, h, varargin)
