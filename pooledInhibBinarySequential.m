@@ -1,4 +1,4 @@
-function [trialThetas, r, lams, decision] = pooledInhibBinarySequential(nets, trueSeq, thres, alpha, beta, delta, eps, omegas, thetas0, lams0, maxsteps, h)
+function [thetas, r, z, lams, decision] = pooledInhibBinarySequential(nets, trueSeq, thres, alpha, beta, delta, phi, forgetPenalty, eps, omegas, thetas0, lams0, maxsteps, h)
 % This script  runs a kuramoto oscillator through a pre-generated network
 % conditioned on local connections
 % Numerical integration through fourth-order Runge-Kutta Method
@@ -22,10 +22,6 @@ for b = 1:nNets
     
     % pre-allocate arrays and set initial conditions
     thetas{b} = zeros(N(b), nSeq, maxsteps);
-    thetas{b}(:, 1, 1) = thetas0{b};
-    lams(b, 1, 1) = lamsPrior(b);
-    z(b, 1, 1) = sum(exp(1i*thetas{b}(:, 1))) / N(b); 
-    r(b, 1, 1) = abs(z(b, 1)); 
 end
 
 % initialize decision matrix
@@ -34,24 +30,29 @@ decision = zeros(nNets, nSeq, 2);
 exc = [2 1];
 
 for s = 1:nSeq
-    decisionTrial(s);
-    thisDecision = decision(:, s, :);
+    lams(:, s, 1) = lamsPrior;
     for b = 1:nNets
-        if thisDecision(b, 1)
-            confidence = log(r(b, s, end) / r(exc(b), s, end));
-            if trueSeq(s) == b
-                % reward correct decision
-                lamsPrior(b) = lamsPrior(b) + delta * confidence;
-            else
-                % punish incorrect decision
-                lamsPrior(b) = lamsPrior(b) - delta * confidence;
+        thetas{b}(:, s, 1) = thetas0{b};
+        z(b, s, 1) = sum(exp(1i*thetas{b}(:, s, 1))) / N(b); 
+        r(b, s, 1) = abs(z(b, s, 1)); 
+    end
+    decisionTrial(s);
+    thisDecision = squeeze(decision(:, s, :));
+    if sum(logical(thisDecision(:, 1))) == 1
+        decisionStep = max(thisDecision(:, 2));
+        whichDecision = find(thisDecision(:, 1));
+        correct = 2*(whichDecision == trueSeq(s)) - 1;
+        for b = 1:nNets
+            decay = phi;
+            if b == whichDecision && correct < 0
+                decay = forgetPenalty * decay;
             end
+            lamsPrior(b) = decay*lamsPrior(b) + correct*delta*log(r(b, s, decisionStep) / r(exc(b), s, decisionStep));
         end
     end
-    lams(:, s+1, 1) = lamsPrior;
 end
 
-function decision = decisionTrial(s)
+function [] = decisionTrial(s)
     % separated into function to preserve any(decision) return 
     for iter = 1:maxsteps-1
         for b = 1:nNets
@@ -74,12 +75,12 @@ function decision = decisionTrial(s)
         end
 
         for b = 1:nNets
-            if r(b, iter+1) > thres
-                decision(b, s, :) = [1 iter+1];
+            if r(b, s, iter+1) > thres
+                decision(b, s, :) = [b iter+1];
             end
         end
 
-        if any(decision)
+        if any(decision(:, s, :))
             return
         end
     end
