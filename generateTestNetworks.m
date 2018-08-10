@@ -6,15 +6,31 @@
 % output: cell array of structs, each containing a network object. Also
 % saves this to the local directory
 % output cell array is N x K x q x numReps; use this to index the array
-function outputArray = generateTestNetworks(allN, allK, allq, numReps, saveFileName)
-outputArray = cell(length(allN),length(allK),length(allq),numReps);
+function networkSet = generateTestNetworks(allN, allK, allq, numReps, saveFileName)
+%% allK can be a function of allK; check if this is the case
+if isa(allK, 'function_handle')
+    % compute N-specific K's
+    Ks = allK(allN);
+    Kix_range = size(Ks,1);
+else    % allK is just a vector of values to be applied to all N's
+    Ks = allK;
+    Kix_range = length(allK);
+end
+networkSet = cell(length(allN),length(allK),length(allq),numReps);
 % vary N (works also if N is one constant)
 for nix = 1:length(allN)
     N = allN(nix);
     disp(['************ N = ' num2str(N)]);
     % vary K (works also if K is one constant)
-    for kix = 1:length(allK)
-        K = allK(kix);
+    for kix = 1:Kix_range
+        if isa(allK, 'function_handle')
+            % Ks is a matrix with K values dependent on N; extract
+            % appropriate K
+            K = Ks(kix,nix);
+        else
+            % Ks is a vector of values to apply to all N
+            K = allK(kix);
+        end
         disp(['******** K = ' num2str(K)]);
         % vary q (works also if q is one constant)
         for qix = 1:length(allq)
@@ -22,13 +38,13 @@ for nix = 1:length(allN)
             disp(['*** q = ' num2str(q)]);
             % repeat numReps times
             for rix = 1:numReps
-                disp(rix);
-                outputArray{nix,kix,qix,rix} = createNetwork(N,K,q,0,0);
+%                 disp(rix);
+                networkSet{nix,kix,qix,rix} = createNetwork(N,K,q,0,0);
             end
         end
     end
 end
-if isempty(saveFileName) || isnan(saveFileName)
+if isempty(saveFileName) || sum(~isnan(saveFileName))==0
     % create meaningful name to save cell array, if none is provided
     % determine which parameters are constant and which are varying
     
@@ -37,7 +53,7 @@ if isempty(saveFileName) || isnan(saveFileName)
     else
         Nstring = ['N' num2str(allN) '_'];
     end
-    if length(allK) > 1
+    if length(Ks) > 1
         Kstring = 'varyingK_';
     else
         Kstring = ['K' num2str(K) '_'];
@@ -52,6 +68,6 @@ if isempty(saveFileName) || isnan(saveFileName)
     saveFileName = strcat(Nstring, Kstring, qstring, numRepsString);
 end
 % save
-save(saveFileName, 'outputArray');
+save(saveFileName, 'networkSet', 'allN', 'allK', 'allq', 'numReps');
 
 end
