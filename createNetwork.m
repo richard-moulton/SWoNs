@@ -10,7 +10,7 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     % average path length ratio (with respect to a random network, lambda),
     % and a clustering coefficient ratio (with respect to a random network,
     % gamma)
-
+    
     % make sure N and K are integers
     N = floor(N);
     K = floor(K);
@@ -170,9 +170,7 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
     
     [charPathLength, clusterCoeff] = networkStats(newNetwork);
     % do the same for a randomly generated network
-
     randomNetwork = generateRandomNetwork(N,numedges(newNetwork),'uniform');
-
     [charPathLength_random, clusterCoeff_random] = networkStats(randomNetwork);
     
     if displayFlag
@@ -193,14 +191,14 @@ function networkObject = createNetwork (N, K, q, displayFlag, saveNetworkFlag)
         disp(['Clustering coefficient ratio (gamma): ' num2str(gamma) ', characteristic path length ratio: ' num2str(lambda)]);  
     end
     
-    %% save network object (maybe)
-    if saveNetworkFlag
-        networkObject = struct('networkObject', newNetwork, 'weightedEdgeMatrix', A_w, 'timeDelayMatrix', T, ...
-            'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
-            'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
-            'timeDelayRange', timeDelayRange);
-        runID = datetime;
-        runID = datestr(runID,'ddmmyy_HHMMSS');
+    %% create network object
+    runID = datetime;
+    runID = datestr(runID,'ddmmyy_HHMMSS');
+    networkObject = struct('runID', runID, 'networkObject', newNetwork, 'N', N, 'K', K, 'q', q, 'weightedEdgeMatrix', A_w, 'timeDelayMatrix', T, ...
+        'smallWorldMeasure', smallWorldMeasure, 'clusteringCoefficientRatio', gamma, ...
+        'characteristicPathLengthRatio', lambda, 'weightRange', weightRange, ...
+        'timeDelayRange', timeDelayRange);
+    if saveNetworkFlag  % save network object
         save(['networkObj_' runID], 'networkObject');
     end
 end

@@ -10,7 +10,7 @@ N = 250;
 % 2 * number of connected neighbors (K on either side)
 K = 25;
 % rewiring probabilities
-q = 0:0.02:0.5;
+q = 0:0.05:0.2;
 % number of networks to simulate in each condition ("samples")
 numTrialNetworks = 100;
 % keep track of statistics for these networks
@@ -25,8 +25,10 @@ for qix = 1:length(q)
         if mod(t,10)==0
             disp(t);
         end
-        [~, T, smallWorldMeasure(qix,t), clusterCoeffRatio(qix,t), charPathLengthRatio(qix,t)] = ...
-            createNetwork(N, K, q(qix), 0, 0);
+        networkObject = createNetwork(N, K, q(qix), 0, 0);
+        smallWorldMeasure(qix,t) = networkObject.smallWorldMeasure;
+        clusterCoeffRatio(qix,t) = networkObject.clusteringCoefficientRatio;
+        charPathLengthRatio(qix,t) = networkObject.characteristicPathLengthRatio;
     end
     toc
 end
