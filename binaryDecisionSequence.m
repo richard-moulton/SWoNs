@@ -11,7 +11,7 @@ thres = 0.95;
 N = [100 100];
 K = [10 10];
 q = [0.1 0.1];
-nNetworks = size(N, 2);
+nNets = size(N, 2);
 
 % simulation parameters
 h = 1e-4;
@@ -23,8 +23,11 @@ alpha = 0.8;  % 0 = perfect memory, 1 = no memory
 beta = 0.2;
 eps = 0.05;
 
+% lambda update weight
+delta = 0.1;
+
 % networks initialization
-%for b = 1:nNetworks
+%for b = 1:nNets
 %    nets{b} = createNetwork(N(b), K(b), q(b), false, false);
 %end
 tic
@@ -43,7 +46,7 @@ for q = 1:nReps
     if ~mod(q, 100)
         disp(q)
     end
-    [thetas{q}, r{q}, ~, lams{q}, decision(q, :, :)] = pooledInhibBinaryDecision(nets, thres, alpha, beta, eps, omegas, thetas0, lams0, maxsteps, h);
+    [trialThetas{q}, r(q, :, :, :), ~, lams(q, :, :, :), decision(q, :, :, :)] = pooledInhibBinaryDecision(nets, trueSeq, thres, alpha, beta, delta, eps, omegas, thetas0, lams0, maxsteps, h);
 end
 
 wins = sum(decision(:,:,1), 1);

@@ -1,4 +1,4 @@
-function [thetas, r, lams, decision] = pooledInhibBinaryDecision(nets, thres, alpha, beta, eps, omegas, thetas0, lams0, maxsteps, h)
+function [thetas, r, z, lams, decision] = pooledInhibBinaryDecision(nets, thres, alpha, beta, eps, omegas, thetas0, lams0, maxsteps, h)
 % This script  runs a kuramoto oscillator through a pre-generated network
 % conditioned on local connections
 % Numerical integration through fourth-order Runge-Kutta Method
@@ -6,8 +6,14 @@ function [thetas, r, lams, decision] = pooledInhibBinaryDecision(nets, thres, al
 % Code adapted from appmath.wordpress.com, courtesy
 % Jeongho Kim, Mathematical Sciences, Seoul National University.
 
+%unForced = false;
+%if isnan(maxsteps) || maxsteps == 0 || isinf(maxsteps)
+%    unForced = true;
+%end 
+
 % network parameters
-for b = 1:size(nets, 2)
+nNets = size(nets, 2);
+for b = 1:nNets
     N(b) = nets{b}.numnodes;
     E{b} = weightedA(nets{b});
     
@@ -20,19 +26,18 @@ for b = 1:size(nets, 2)
 end
 
 % initialize decision matrix
-decision = zeros(size(nets, 2), 2);
+decision = zeros(nNets, 2);
 
 exc = [2 1];
 
 for iter = 1:maxsteps-1
-    for b = 1:size(nets, 2)
+    for b = 1:nNets
         % pairwise inter-node phase differences
         thetaPairwiseDiffs = thetas{b}(:, iter) - thetas{b}(:, iter)'; 
 
         % numerical integration step
         dw = randn * eps;
         lams(b, iter+1) = lams(b, iter)*(1 - alpha) - beta * lams(exc(b), iter) + r(b, iter) + dw;
-        %* log(r(b, iter) / sum(r(:, iter)));  
         plusNoise = thetaPairwiseDiffs;% + rand(N)*0.1;
         dtheta = rk4Step(@kuramoto, plusNoise, h, E{b}, lams(b, iter+1), omegas{b}, N(b));
         thetas{b}(:, iter+1) = thetas{b}(:, iter) + dtheta;
@@ -45,12 +50,14 @@ for iter = 1:maxsteps-1
         r(b, iter+1) = abs(z(b, iter+1));
     end
     
-    for b = 1:size(nets, 2)
+    %% see if decision threshold is reacher by one or both networks
+    for b = 1:nNets
         if r(b, iter+1) > thres
             decision(b, :) = [1 iter+1];
         end
     end
     
+    %% exit if decision threshold has been reached
     if any(decision)
         return
     end
