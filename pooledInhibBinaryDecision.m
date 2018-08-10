@@ -30,7 +30,7 @@ for iter = 1:maxsteps-1
         thetaPairwiseDiffs = thetas{b}(:, iter) - thetas{b}(:, iter)'; 
 
         % numerical integration step
-        dw = rand * eps;
+        dw = randn * eps;
         lams(b, iter+1) = lams(b, iter)*(1 - alpha) - beta * lams(exc(b), iter) + r(b, iter) + dw;
         %* log(r(b, iter) / sum(r(:, iter)));  
         plusNoise = thetaPairwiseDiffs;% + rand(N)*0.1;
