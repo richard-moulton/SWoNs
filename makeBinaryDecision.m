@@ -31,6 +31,7 @@ tic
 net = createNetwork(N(1), K(1), q(1), false, false);
 toc
 disp('Network created!')
+% use same network for both
 nets{1} = net; nets{2} = net;
 
 for q = 1:nReps
