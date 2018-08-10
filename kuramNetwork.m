@@ -6,15 +6,25 @@ function [theta,r, psi] = kuramNetwork (testNet,Edges,N,Lam,omega,theta,numNodes
 % BC/ML/SWoNS/2018
 % Code adapted from appmath.wordpress.com, courtesy
 % Jeongho Kim, Mathematical Sciences, Seoul National University.
-% Someone please cleanv
+% Someone please clean
 
 %% Generate network
-iter = 500;
+iter = 2500;
 h = 0.1;
 r = zeros(length(iter-1),1);
+
 figure;
+movegui('center');
 for k = 1:iter-1
-    
+         if k == 100
+            omega(1:end)  = omega(1:end).*rand(1,length(omega))+50;
+            omega(1) = omega(1) + 5;
+            set(gca,'Color','k');
+            pause(.5)
+            set(gca,'Color','w');
+
+        end
+   
     thetaConnect = theta(:,k)*ones(1,N)-(ones(N,1)*theta(:,k)'); %Generates phase matrix\
     indEdgeConnect = adjacency(testNet);
     thetaConnect(~indEdgeConnect) = 0; %no connection == 0
@@ -34,6 +44,18 @@ for k = 1:iter-1
         z = sum(exp(1i*theta(:,k+1)))/N;
         r(k+1) = abs (z);
         psi(k+1) = angle(z);
+        x=cos(theta(:,k));
+        y=sin(theta(:,k));
+
+        s=linspace(0,2*pi,100);
+        cx=cos(s);
+        cy=sin(s);
+        s = plot(x,y,'o',cx,cy);
+        set(s,'MarkerSize',20);
+        axis([-1 1 -1 1])
+        axis square
+
+        drawnow
         
 end
 
